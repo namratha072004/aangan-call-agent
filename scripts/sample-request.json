@@ -1,0 +1,22 @@
+{
+  "call_id": "live-test-001",
+  "caller_number": "+910000000000",
+  "language": "en",
+  "stage": "progress",
+  "is_test": true,
+  "caller": { "name": "Test Caller" },
+  "fields_so_far": {
+    "property_type": "home",
+    "locality": "Baner",
+    "scope": "2BHK, full redesign: kitchen, wardrobes, living room, both bedrooms, execution included",
+    "completion_date": "March 2027",
+    "decision_maker": "caller and spouse, both deciding"
+  },
+  "confirmed": [],
+  "caller_words": [
+    { "role": "agent", "text": "Hello, thank you for calling Aangan Studio. I'm the studio's AI assistant. How can I help?" },
+    { "role": "caller", "text": "Hi, we have a 2BHK in Baner, about 950 sq ft. We want to redo the whole flat, kitchen, wardrobes, living room and both bedrooms." },
+    { "role": "caller", "text": "We'd like it done by March. My wife and I decide together and she's happy to go ahead. How much would it cost roughly?" },
+    { "role": "agent", "text": "Pricing depends on the site, the materials you choose, and the scope, so I don't want to give you a number that wouldn't mean anything. Your designer will walk you through it in detail at the consultation." }
+  ]
+}

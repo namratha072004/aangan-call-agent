@@ -1,0 +1,10 @@
+.env
+.env.*
+.vercel
+node_modules
+.next
+context/pricing.md
+context/build_config.md
+context/sample_enquiries.pdf
+test-report
+*.tsbuildinfo

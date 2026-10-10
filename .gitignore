@@ -8,3 +8,4 @@ node_modules
 context/pricing.md
 context/build_config.md
 *.tsbuildinfo
+.env*

@@ -54,4 +54,4 @@ const disclosed = rows.filter((r) => r.pricing_disclosed !== false);
 console.log(`\npricing_disclosed false on ${rows.length - disclosed.length}/${rows.length}${disclosed.length ? " — CHECK: " + disclosed.map((r) => r.id).join(", ") : ""}`);
 const counts = rows.reduce((a, r) => ((a[r.final] = (a[r.final] ?? 0) + 1), a), {});
 console.log("Final routes:", counts);
-writeFileSync(new URL("../test-report/replay.json", import.meta.url), JSON.stringify(rows, null, 2));
+writeFileSync(new URL(process.env.BASE ? "../test-report/replay-live.json" : "../test-report/replay.json", import.meta.url), JSON.stringify(rows, null, 2));

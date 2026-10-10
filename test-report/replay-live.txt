@@ -1,0 +1,53 @@
+┌─────────┬───────┬─────────────────────┬─────────────────────┬─────────────────────┬────────┬────────────────────────────────────────────────────────────────────────────────────────────┬───────────────────┐
+│ (index) │ id    │ mid_call            │ final               │ close_reason        │ urgent │ flags                                                                                      │ pricing_disclosed │
+├─────────┼───────┼─────────────────────┼─────────────────────┼─────────────────────┼────────┼────────────────────────────────────────────────────────────────────────────────────────────┼───────────────────┤
+│ 0       │ 'T01' │ 'qualified'         │ 'qualified'         │ ''                  │ false  │ 'referral'                                                                                 │ false             │
+│ 1       │ 'T02' │ 'qualified_flagged' │ 'qualified'         │ ''                  │ false  │ 'pricing_asked'                                                                            │ false             │
+│ 2       │ 'T03' │ 'ask_question'      │ 'close'             │ 'area'              │ false  │ ''                                                                                         │ false             │
+│ 3       │ 'T04' │ 'ask_question'      │ 'close'             │ 'advice_only'       │ false  │ ''                                                                                         │ false             │
+│ 4       │ 'T05' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'referral,decision_maker_unclear'                                                          │ false             │
+│ 5       │ 'T06' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_tight'                                                                           │ false             │
+│ 6       │ 'T07' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_tight,decision_maker_unclear,callback_needed,service_area_unclear'               │ false             │
+│ 7       │ 'T08' │ 'dropped'           │ 'dropped'           │ ''                  │ false  │ 'callback_needed'                                                                          │ false             │
+│ 8       │ 'T09' │ 'escalate_human'    │ 'escalate_human'    │ ''                  │ true   │ 'frustrated,callback_needed'                                                               │ false             │
+│ 9       │ 'T10' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_unclear,budget_mismatch'                                                         │ false             │
+│ 10      │ 'T11' │ 'ask_question'      │ 'qualified'         │ ''                  │ false  │ ''                                                                                         │ false             │
+│ 11      │ 'T12' │ 'qualified'         │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear'                                                                   │ false             │
+│ 12      │ 'T13' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'pricing_asked,decision_maker_unclear'                                                     │ false             │
+│ 13      │ 'T14' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear'                                                                   │ false             │
+│ 14      │ 'T15' │ 'qualified'         │ 'qualified'         │ ''                  │ false  │ ''                                                                                         │ false             │
+│ 15      │ 'T16' │ 'escalate_human'    │ 'escalate_human'    │ ''                  │ true   │ 'frustrated,repeat_caller,callback_needed'                                                 │ false             │
+│ 16      │ 'T17' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'repeat_caller,decision_maker_unclear'                                                     │ false             │
+│ 17      │ 'T18' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'real_project_unclear,service_area_unclear,timeline_unclear'                               │ false             │
+│ 18      │ 'T19' │ 'ask_question'      │ 'close'             │ 'out_of_scope_type' │ false  │ ''                                                                                         │ false             │
+│ 19      │ 'T20' │ 'qualified'         │ 'qualified'         │ ''                  │ false  │ 'early_stage'                                                                              │ false             │
+│ 20      │ 'W01' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear,referral,repeat_caller'                                            │ false             │
+│ 21      │ 'W02' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'pricing_asked,decision_maker_unclear'                                                     │ false             │
+│ 22      │ 'W03' │ 'ask_question'      │ 'qualified'         │ ''                  │ false  │ ''                                                                                         │ false             │
+│ 23      │ 'W04' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear'                                                                   │ false             │
+│ 24      │ 'W05' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear,timeline_unclear'                                                  │ false             │
+│ 25      │ 'W06' │ 'qualified'         │ 'qualified'         │ ''                  │ false  │ 'referral'                                                                                 │ false             │
+│ 26      │ 'W07' │ 'ask_question'      │ 'close'             │ 'out_of_scope_type' │ false  │ ''                                                                                         │ false             │
+│ 27      │ 'W08' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'frustrated,decision_maker_unclear'                                                        │ false             │
+│ 28      │ 'W09' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear,timeline_unclear'                                                  │ false             │
+│ 29      │ 'W10' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear,real_project_unclear,timeline_unclear'                             │ false             │
+│ 30      │ 'F01' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_tight'                                                                           │ false             │
+│ 31      │ 'F02' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear,referral'                                                          │ false             │
+│ 32      │ 'F03' │ 'ask_question'      │ 'close'             │ 'area'              │ false  │ ''                                                                                         │ false             │
+│ 33      │ 'F04' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'callback_needed,pricing_asked,timeline_tight,decision_maker_unclear,real_project_unclear' │ false             │
+│ 34      │ 'F05' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_tight,referral'                                                                  │ false             │
+│ 35      │ 'F06' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_tight,early_stage'                                                               │ false             │
+│ 36      │ 'F07' │ 'ask_question'      │ 'qualified_flagged' │ ''                  │ false  │ 'pricing_asked,decision_maker_unclear,real_project_unclear,timeline_unclear'               │ false             │
+│ 37      │ 'F08' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'timeline_tight,decision_maker_unclear'                                                    │ false             │
+│ 38      │ 'F09' │ 'qualified_flagged' │ 'qualified_flagged' │ ''                  │ false  │ 'decision_maker_unclear,referral'                                                          │ false             │
+│ 39      │ 'F10' │ 'qualified'         │ 'qualified'         │ ''                  │ false  │ ''                                                                                         │ false             │
+└─────────┴───────┴─────────────────────┴─────────────────────┴─────────────────────┴────────┴────────────────────────────────────────────────────────────────────────────────────────────┴───────────────────┘
+
+pricing_disclosed false on 40/40
+Final routes: {
+  qualified: 8,
+  close: 5,
+  qualified_flagged: 24,
+  dropped: 1,
+  escalate_human: 2
+}

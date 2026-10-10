@@ -39,7 +39,8 @@ Every incoming call to Aangan Studio is answered by a Vaani Labs voice agent, da
 | Check | Result |
 |---|---|
 | 40 sample enquiries replayed (local) | 11 qualified, 20 flagged, 6 closed, 2 escalated, 1 non-lead; `pricing_disclosed` false on 40/40 ([test-report/replay.json](test-report/replay.json)) |
-| 40 sample enquiries replayed (live Vercel) | see [test-report/replay-live.txt](test-report/replay-live.txt) |
+| 40 sample enquiries replayed (live Vercel) | 8 qualified, 24 flagged, 5 closed, 2 escalated, 1 dropped; `pricing_disclosed` false on 40/40 ([test-report/replay-live.txt](test-report/replay-live.txt)) |
+| Run-to-run consistency | 11 of 40 routes differ between the two runs, almost all qualified ↔ flagged on a borderline `decision_maker_unclear`. No call moved between "reaches a designer" and "closed" except T18 (180 sq ft pod), which the rubric itself calls unclear. Closes, escalations and pricing never varied |
 | Routing rules, every route | 16/16 pass (`npx tsx tests/routing.test.ts`) |
 | Budget floor (build_config.md §2) | 8/8 pass: T10 fails, F05/F06/F08/F10 pass (`npx tsx --env-file=.env tests/budget.test.mts`) |
 | Output failure isolation | missing keys → each skipped; wrong keys → each fails alone; none blocks another (`npx tsx tests/outputs.test.mts`) |
@@ -73,6 +74,7 @@ npm run replay         # 40 sample enquiries as test calls
 
 - **Cal.com and HubSpot keys not provided**: both outputs are built and tested for failure, and skip safely until keys are set in Vercel.
 - **Vaani call timing and cost by `call_id`**: not confirmed. Until then cost per call shows "Set your inputs" and "answered within 5 minutes" uses timing only when Vaani sends it.
+- **Gemini varies on borderline decision-maker calls** (qualified ↔ flagged). Both still reach a designer; tightening the decision-maker wording in `classifier_context.md` would steady it.
 - **T16 (frustrated new lead) is escalated by Gemini**; the rubric says treat as a new P1 enquiry. Fix by tightening `classifier_context.md`.
 - Not built: dropped-call cron alert, re-send of un-Taken leads to the next designer, WhatsApp and web-form intake (future extensions).
 - For Nikhil: approve the budget floor values, decide `TIMELINE_CLOSE_WEEKS`, set conversion rate and average project value on the dashboard.

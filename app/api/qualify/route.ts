@@ -9,6 +9,7 @@ import { OutputResult, safely } from "@/lib/outputs/result";
 import { CallRow, sendHandoff } from "@/lib/outputs/telegram";
 import { decide, Decision, pricingDisclosed as pricingCheck } from "@/lib/routing";
 import { isAfterHours } from "@/lib/time";
+import { resolveSlot } from "@/lib/slots";
 import type { QualifyRequest, Turn } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -69,6 +70,10 @@ function mergeWithPrevious(b: QualifyRequest, prev: Record<string, any>): Qualif
   };
 }
 
+function callerText(t: unknown): string {
+  return asText(t).split("\n").filter((l) => !/^\s*(agent|assistant|ai|bot)\s*:/i.test(l)).join("\n");
+}
+
 function costInr(r: QualifyRequest, durationSec: number | null, tokensIn: number, tokensOut: number): number | null {
   const voice = typeof r.vaani_cost_inr === "number" ? r.vaani_cost_inr
     : config.vaaniInrPerMin !== null && durationSec !== null ? (durationSec / 60) * config.vaaniInrPerMin : null;
@@ -100,12 +105,16 @@ export async function POST(req: NextRequest) {
       : Promise.resolve([]),
   ]);
   const prevOutputs: Record<string, OutputResult> = prev?.outputs ?? {};
+  const latestCallerText = callerText(body.transcript); // this request only, before merging
+  const offeredSlots: string[] = Array.isArray(prev?.fields?._slots) ? prev.fields._slots : [];
   if (prev) body = mergeWithPrevious(body, prev);
+  // Plain rule: book when book_slot (ISO or loose, e.g. "Monday 10 AM") or the caller's latest words match exactly one offered slot.
+  const chosenSlot = resolveSlot(body.book_slot, latestCallerText, offeredSlots);
 
   // 1. AI judgement: Gemini checks the five criteria.
   // Start fetching Cal.com slots now, in parallel with the classifier; used only if the lead qualifies.
   const testOutputsHeader = req.headers.get("x-test-outputs") === "true";
-  const slotsPrefetch: Promise<string[]> | null = (!body.is_test || testOutputsHeader) && !prev?.booking?.ok && !body.book_slot
+  const slotsPrefetch: Promise<string[]> | null = (!body.is_test || testOutputsHeader) && !prev?.booking?.ok && !chosenSlot
     ? nextSlots().catch((e) => { console.error(`[output failed] calcom slots: ${e.message}`); return []; })
     : null;
   let cls: ClassifyResult | null = null;
@@ -139,13 +148,14 @@ export async function POST(req: NextRequest) {
   const outputsAllowed = !body.is_test || req.headers.get("x-test-outputs") === "true";
   let justBooked = false;
   if (isLead && outputsAllowed && !booking?.ok) {
-    if (body.book_slot) {
+    if (chosenSlot) {
       booking = await safely("calcom", () => book({
-        start: body.book_slot!, name: body.caller?.name ?? "", phone: body.caller?.phone, email: body.attendee_email, callId: body.call_id,
+        start: chosenSlot, name: body.caller?.name ?? "", phone: body.caller?.phone, email: body.attendee_email, callId: body.call_id,
       }));
       justBooked = booking.ok;
     } else {
       slots = (await slotsPrefetch) ?? [];
+      if (slots.length) body.fields = { ...(body.fields ?? {}), _slots: slots }; // remembered so a later pick can be matched
     }
   }
 
@@ -188,7 +198,7 @@ export async function POST(req: NextRequest) {
   // 5. Handoff (build_config.md §5): Telegram as soon as the route is qualified/flagged, or on escalation (urgent).
   //    HubSpot on stage final, qualified routes, new callers only. Both run after the reply, in parallel, isolated.
   const telegramDue = (isLead || decision.route === "escalate_human") && !prevOutputs.telegram?.ok;
-  const hubspotDue = isLead && body.stage === "final" && !body.is_test && !prevOutputs.hubspot?.ok && !repeat; // repeat = same number seen in Neon, not the model's guess
+  const hubspotDue = isLead && (body.stage === "final" || justBooked) && !body.is_test && !prevOutputs.hubspot?.ok && !repeat; // repeat = same number seen in Neon, not the model's guess
   if (outputsAllowed && (telegramDue || hubspotDue || justBooked)) {
     after(async () => {
       const callRow: CallRow = {

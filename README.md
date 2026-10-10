@@ -46,6 +46,7 @@ Every incoming call to Aangan Studio is answered by a Vaani Labs voice agent, da
 | Output failure isolation | missing keys → each skipped; wrong keys → each fails alone; none blocks another (`npx tsx tests/outputs.test.mts`) |
 | Live `/api/qualify` | HTTP 200, `qualified`, P2, `pricing_asked`, `pricing_disclosed: false`, 4–6 s |
 | Live Telegram handoff | delivered (message id returned, stored in the call row) |
+| Live Cal.com booking | `/api/qualify` offered 3 slots; booking the first returned `confirmed: true` (Mon 12 Oct, 9:00 IST, test booking) |
 | Dashboard | six numbers, test rows excluded, "Set your inputs" shown, no horizontal scroll at 375px |
 
 ## Run locally
@@ -72,7 +73,8 @@ npm run replay         # 40 sample enquiries as test calls
 
 ## Not done / to confirm
 
-- **Cal.com and HubSpot keys not provided**: both outputs are built and tested for failure, and skip safely until keys are set in Vercel.
+- **HubSpot key not provided**: built and tested for failure; skips safely until `HUBSPOT_TOKEN` is set in Vercel.
+- **Cal.com uses the "30 min meeting" event as a placeholder** (no consultation event or length in the files). Create a "Design consultation" event with the studio's hours (10am–7pm) and set `CALCOM_EVENT_TYPE_ID`.
 - **Vaani call timing and cost by `call_id`**: not confirmed. Until then cost per call shows "Set your inputs" and "answered within 5 minutes" uses timing only when Vaani sends it.
 - **Gemini varies on borderline decision-maker calls** (qualified ↔ flagged). Both still reach a designer; tightening the decision-maker wording in `classifier_context.md` would steady it.
 - **T16 (frustrated new lead) is escalated by Gemini**; the rubric says treat as a new P1 enquiry. Fix by tightening `classifier_context.md`.

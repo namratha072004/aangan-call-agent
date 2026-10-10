@@ -47,8 +47,21 @@ function normalise(raw: QualifyRequest): QualifyRequest {
     confirmed: list(b.confirmed),
     questions_asked: list(b.questions_asked),
     book_slot: b.book_slot?.trim() || undefined,
-    transcript: b.transcript ?? b.caller_words ?? "",
+    transcript: parseTurns(b.transcript ?? b.caller_words ?? ""),
   };
+}
+
+// Vaani sends caller_words as JSON text ('[{"role": "caller", "text": "..."}]'); turn it into real turns
+// so caller and agent lines stay separate.
+function parseTurns(t: unknown): QualifyRequest["transcript"] {
+  if (typeof t !== "string") return t as QualifyRequest["transcript"];
+  const s = t.trim();
+  if (!s.startsWith("[")) return t;
+  try {
+    const arr = JSON.parse(s);
+    if (Array.isArray(arr)) return arr.map((x) => ({ role: /agent|assistant|ai|bot/i.test(String(x?.role)) ? "agent" : "caller", text: String(x?.text ?? "") }));
+  } catch { /* not JSON: keep as plain text */ }
+  return t;
 }
 
 // Voice agents often send only the latest turn and partial fields on each mid-call request.

@@ -1,0 +1,10 @@
+node_modules
+.next
+.env
+.env*.local
+.vercel
+*.log
+# Internal pricing guide and build_config (floor figures derive from it): never committed, never sent to any model
+context/pricing.md
+context/build_config.md
+*.tsbuildinfo

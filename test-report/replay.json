@@ -1,0 +1,402 @@
+[
+  {
+    "id": "T01",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "referral",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T02",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_tight,pricing_asked,decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T03",
+    "mid_call": "ask_question",
+    "mid_question": "Just to confirm, the project is located in Nashik?",
+    "final": "close",
+    "close_reason": "area",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T04",
+    "mid_call": "ask_question",
+    "mid_question": "Just to confirm, you are looking for design ideas and colour advice only, rather than full execution?",
+    "final": "close",
+    "close_reason": "advice_only",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T05",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "referral",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T06",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_tight",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T07",
+    "mid_call": "dropped",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_tight,decision_maker_unclear,service_area_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T08",
+    "mid_call": "ask_question",
+    "mid_question": "Are you looking for the complete design and execution, or more for ideas and advice?",
+    "final": "non_lead",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T09",
+    "mid_call": "escalate_human",
+    "mid_question": "",
+    "final": "escalate_human",
+    "close_reason": "",
+    "urgent": true,
+    "flags": "frustrated,callback_needed",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T10",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_unclear,budget_mismatch",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T11",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear,timeline_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T12",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T13",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "pricing_asked",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T14",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T15",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T16",
+    "mid_call": "escalate_human",
+    "mid_question": "",
+    "final": "escalate_human",
+    "close_reason": "",
+    "urgent": true,
+    "flags": "frustrated,repeat_caller,callback_needed",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T17",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear,repeat_caller",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T18",
+    "mid_call": "ask_question",
+    "mid_question": "Are you looking for the complete design and execution, or more for ideas and advice?",
+    "final": "close",
+    "close_reason": "scope",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T19",
+    "mid_call": "ask_question",
+    "mid_question": "Just to confirm, you are looking for interior design for a restaurant?",
+    "final": "close",
+    "close_reason": "out_of_scope_type",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "T20",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "early_stage",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W01",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "referral,repeat_caller",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W02",
+    "mid_call": "ask_question",
+    "mid_question": "Which locality, exactly?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "pricing_asked,decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W03",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W04",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W05",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear,timeline_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W06",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "referral",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W07",
+    "mid_call": "ask_question",
+    "mid_question": "Just to confirm, you are looking to design a gym?",
+    "final": "close",
+    "close_reason": "out_of_scope_type",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W08",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "frustrated,decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W09",
+    "mid_call": "ask_question",
+    "mid_question": "When would you like it ready?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear,timeline_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "W10",
+    "mid_call": "ask_question",
+    "mid_question": "Are you looking for the complete design and execution, or more for ideas and advice?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear,real_project_unclear,timeline_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F01",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F02",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "decision_maker_unclear,referral",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F03",
+    "mid_call": "ask_question",
+    "mid_question": "Just to confirm, that is in Talegaon?",
+    "final": "close",
+    "close_reason": "area",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F04",
+    "mid_call": "ask_question",
+    "mid_question": "Are you looking for the complete design and execution, or more for ideas and advice?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "callback_needed,pricing_asked,decision_maker_unclear,real_project_unclear,timeline_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F05",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_tight,referral",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F06",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_tight,early_stage",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F07",
+    "mid_call": "ask_question",
+    "mid_question": "Are you looking for the complete design and execution, or more for ideas and advice?",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "pricing_asked,decision_maker_unclear,real_project_unclear,timeline_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F08",
+    "mid_call": "qualified_flagged",
+    "mid_question": "",
+    "final": "qualified_flagged",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "timeline_tight,decision_maker_unclear",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F09",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "referral",
+    "pricing_disclosed": false
+  },
+  {
+    "id": "F10",
+    "mid_call": "qualified",
+    "mid_question": "",
+    "final": "qualified",
+    "close_reason": "",
+    "urgent": false,
+    "flags": "",
+    "pricing_disclosed": false
+  }
+]

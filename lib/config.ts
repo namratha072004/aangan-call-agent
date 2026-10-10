@@ -26,7 +26,10 @@ export const config = {
   vaaniInrPerMin: num(process.env.VAANI_INR_PER_MIN),
   geminiInrPer1mIn: num(process.env.GEMINI_INR_PER_1M_INPUT),
   geminiInrPer1mOut: num(process.env.GEMINI_INR_PER_1M_OUTPUT),
-  geminiModel: process.env.GEMINI_MODEL || "gemini-3.8-flash",
+  // Mid-call (stage "progress") checks use the fast model; the final check, which sets the stored route,
+  // Telegram and HubSpot, uses the more accurate one.
+  geminiModel: process.env.GEMINI_MODEL || "gemini-3.1-flash-lite",
+  geminiModelFinal: process.env.GEMINI_MODEL_FINAL || "gemini-3.8-flash",
   baseUrl: (process.env.APP_BASE_URL || "http://localhost:3000").replace(/\/$/, ""),
   studioTz: "Asia/Kolkata",
 };

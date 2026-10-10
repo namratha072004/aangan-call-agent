@@ -135,7 +135,19 @@ export function decide(g: Classification, req: QualifyRequest, pricingDisclosed:
 // Belt and braces: catch any price, range, per-sq-ft figure or cost judgement in the agent's own words.
 const PRICE_RE = /(₹|\brs\.?\s*\d|\binr\b|\d[\d,.]*\s*(lakh|lac|lakhs|crore|cr\b|k\b)|per\s*sq\.?\s*(ft|feet|foot)|rates?\s+start|starts?\s+(at|from)\s+\d|around\s+\d|\d+\s*x\s+the\s+cost|\b\d+×|(that'?s|sounds|is)\s+(low|high|cheap|expensive|affordable|enough|fine)\b)/i;
 
+// The agent's own lines, from a turn list or a plain-text transcript ("agent: ..." lines).
+export function agentLines(transcript: QualifyRequest["transcript"]): string[] {
+  if (Array.isArray(transcript)) return transcript.filter((t) => t.role === "agent").map((t) => t.text ?? "");
+  if (typeof transcript !== "string") return [];
+  return transcript.split(/\n/).map((l) => l.match(/^\s*(agent|assistant|ai|bot)\s*:\s*(.*)$/i)?.[2]).filter((x): x is string => !!x);
+}
+
 export function agentDisclosedPrice(transcript: QualifyRequest["transcript"]): boolean {
-  if (!Array.isArray(transcript)) return false;
-  return transcript.some((t) => t.role === "agent" && PRICE_RE.test(t.text ?? ""));
+  return agentLines(transcript).some((t) => PRICE_RE.test(t));
+}
+
+// The model's flag counts only if the agent's own words contain a figure; a number the caller said never counts.
+export function pricingDisclosed(modelFlag: boolean, transcript: QualifyRequest["transcript"]): boolean {
+  if (agentDisclosedPrice(transcript)) return true;
+  return modelFlag && agentLines(transcript).some((t) => /\d|₹|lakh|crore/i.test(t));
 }

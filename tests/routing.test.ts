@@ -1,6 +1,6 @@
 // Deterministic checks of the plain-rules router (no Gemini, no network). Run: npx tsx tests/routing.test.ts
 import assert from "node:assert/strict";
-import { agentDisclosedPrice, decide } from "../lib/routing";
+import { agentDisclosedPrice, decide, pricingDisclosed } from "../lib/routing";
 import type { Classification } from "../lib/types";
 
 const base = (o: Partial<Classification["criteria"]> = {}, extra: Partial<Classification> = {}): Classification => ({
@@ -77,5 +77,9 @@ t("price guard catches agent figures, ignores the fixed line", () => {
   assert.equal(agentDisclosedPrice([{ role: "agent", text: "For a 2BHK it's typically 8 lakh" }]), true);
   assert.equal(agentDisclosedPrice([{ role: "agent", text: "Pricing depends on the site, the materials you choose, and the scope — your designer will walk you through it in detail at the consultation. I can book that for you right now if you'd like." }]), false);
   assert.equal(agentDisclosedPrice([{ role: "caller", text: "my budget is 5 lakh" }]), false);
+});
+t("pricing flag: caller's own budget never counts; agent figures in plain-text transcripts do", () => {
+  assert.equal(pricingDisclosed(true, "caller: my budget is 1.5 lakh\nagent: Thanks for sharing that, I'll note it for the designer."), false);
+  assert.equal(pricingDisclosed(false, "caller: how much?\nagent: It is around 2000 per sq ft"), true);
 });
 console.log(`\n${n} routing checks passed`);

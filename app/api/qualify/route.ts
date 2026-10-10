@@ -7,7 +7,7 @@ import { book, nextSlots } from "@/lib/outputs/calcom";
 import { createLead } from "@/lib/outputs/hubspot";
 import { OutputResult, safely } from "@/lib/outputs/result";
 import { CallRow, sendHandoff } from "@/lib/outputs/telegram";
-import { agentDisclosedPrice, decide, Decision } from "@/lib/routing";
+import { decide, Decision, pricingDisclosed as pricingCheck } from "@/lib/routing";
 import { isAfterHours } from "@/lib/time";
 import type { QualifyRequest, Turn } from "@/lib/types";
 
@@ -103,18 +103,24 @@ export async function POST(req: NextRequest) {
   if (prev) body = mergeWithPrevious(body, prev);
 
   // 1. AI judgement: Gemini checks the five criteria.
+  // Start fetching Cal.com slots now, in parallel with the classifier; used only if the lead qualifies.
+  const testOutputsHeader = req.headers.get("x-test-outputs") === "true";
+  const slotsPrefetch: Promise<string[]> | null = (!body.is_test || testOutputsHeader) && !prev?.booking?.ok && !body.book_slot
+    ? nextSlots().catch((e) => { console.error(`[output failed] calcom slots: ${e.message}`); return []; })
+    : null;
   let cls: ClassifyResult | null = null;
   let decision: Decision;
   const callerSpoke = Array.isArray(body.transcript)
     ? body.transcript.some((t) => t.role === "caller" && t.text?.trim())
-    : typeof body.transcript === "string" && body.transcript.trim() !== "";
-  if (!callerSpoke && Object.keys(body.fields ?? {}).length === 0) {
+    : typeof body.transcript === "string" && body.transcript.split("\n").some((l) => !/^\s*(agent|assistant|ai|bot)\s*:/i.test(l) && l.replace(/^\s*\w+\s*:/, "").trim() !== "");
+  const realFields = Object.entries(body.fields ?? {}).filter(([k, v]) => !k.startsWith("_") && v !== "" && v != null);
+  if (!callerSpoke && realFields.length === 0) {
     // Plain rule: silent line or dropped before the caller said anything. No classifier call needed.
     decision = { route: "dropped", urgent: false, flags: ["callback_needed"], close_reason: null, next_question: null,
       say_line: null, statuses: {}, priority: null };
   } else try {
     cls = await classify(body);
-    const disclosed = cls.data.pricing_disclosed === true || agentDisclosedPrice(body.transcript);
+    const disclosed = pricingCheck(cls.data.pricing_disclosed === true, body.transcript);
     decision = decide(cls.data, body, disclosed);
   } catch (e) {
     // Classifier down: never guess. A person calls back (not marked urgent).
@@ -139,7 +145,7 @@ export async function POST(req: NextRequest) {
       }));
       justBooked = booking.ok;
     } else {
-      slots = await nextSlots().catch((e) => { console.error(`[output failed] calcom slots: ${e.message}`); return []; });
+      slots = (await slotsPrefetch) ?? [];
     }
   }
 

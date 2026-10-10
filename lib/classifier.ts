@@ -35,15 +35,17 @@ export async function classify(req: QualifyRequest): Promise<ClassifyResult> {
     transcript: req.transcript ?? "",
   };
 
+  const model = req.stage === "final" ? config.geminiModelFinal : config.geminiModel;
   const generationConfig: Record<string, unknown> = { responseMimeType: "application/json" };
   // Keep latency low for a live call: minimal thinking.
-  generationConfig.thinkingConfig = config.geminiModel.includes("2.5") ? { thinkingBudget: 0 } : { thinkingLevel: "low" };
+  generationConfig.thinkingConfig = model.includes("2.5") ? { thinkingBudget: 0 }
+    : model.includes("lite") ? { thinkingLevel: "minimal" } : { thinkingLevel: "low" };
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 20000);
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
         signal: ctrl.signal,

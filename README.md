@@ -7,7 +7,7 @@ Every incoming call to Aangan Studio is answered by a Vaani Labs voice agent, da
 | Live dashboard | https://aangan-call-agent-sandy.vercel.app (user `aangan`, password = `DASHBOARD_PASSWORD` env) |
 | Vaani endpoint | `POST https://aangan-call-agent-sandy.vercel.app/api/qualify` with header `x-aangan-secret` |
 | Vaani connection steps | [VAANI.md](VAANI.md) |
-| Stack | Next.js 16 + TypeScript on Vercel (Singapore), Neon Postgres, Gemini `gemini-3.8-flash`, Telegram, Cal.com, HubSpot |
+| Stack | Next.js 16 + TypeScript on Vercel (Singapore), Neon Postgres, Gemini (`gemini-3.1-flash-lite` mid-call, `gemini-3.8-flash` on the final check), Telegram, Cal.com, HubSpot |
 
 ## How it follows the component map
 
@@ -62,7 +62,11 @@ npm run replay         # 40 sample enquiries as test calls
 
 ## Decisions made in the build
 
-- Gemini `gemini-3.8-flash` (2.5 is closed to new keys); lowest supported thinking level. Replies take 4–6 s, so the agent says a short filler line while waiting.
+- Two Gemini models (2.5 is closed to new keys): `gemini-3.1-flash-lite` for mid-call checks (~2.5 s live) and `gemini-3.8-flash` for the final check that sets the stored route, Telegram and HubSpot. The 40-enquiry replay matched the all-flash run; `pricing_disclosed` false on 40/40.
+- `pricing_disclosed` is decided by code from the agent's own lines only; a number the caller says (their budget) never counts.
+- The backend keeps the whole call across mid-call requests (Vaani sends only the latest turn): it appends the transcript and merges fields, confirmed facts and questions asked.
+- Booking is a plain rule: the backend remembers the slots it offered and books when the caller's words (or a loose `book_slot`) match exactly one of them. Vaani did not reliably send `book_slot`.
+- HubSpot fires on `final` or on a confirmed booking (Vaani does not always send `final`). Placeholder caller numbers are treated as missing; the lead is still created under the caller's name.
 - `qualified.md` is not sent to Gemini (it holds a ₹ example); `classifier_context.md` already encodes it.
 - `pricing.md` and `build_config.md` are never committed or deployed; the budget floor numbers live only in env.
 - Timeline never closes a call (`TIMELINE_CLOSE_WEEKS` is Nikhil's call); a low budget is flagged `budget_mismatch`, not closed, while `BUDGET_CLOSE_ENABLED` is off.
@@ -72,10 +76,14 @@ npm run replay         # 40 sample enquiries as test calls
 - Telegram goes to a direct chat with the principal designer (one person); a group can replace it by changing `TELEGRAM_CHAT_ID`.
 - Cal.com bookings use a studio inbox (`CALCOM_ATTENDEE_FALLBACK_EMAIL`) because phone callers rarely give an email.
 
+## Live Vaani test (10 Oct)
+A real phone test through the Vaani agent qualified the lead (P1), sent the Telegram handoff, offered real Cal.com slots and, after the booking fixes above, produced a Cal.com booking, a HubSpot contact and deal (stage Appointment Scheduled) and a "Slot booked" Telegram note. The booking step was completed by replaying the caller's last line after the fix was deployed.
+
 ## Not done / to confirm
 
 - **HubSpot is connected** (service key with contacts and deals read/write; access verified live). No test contact or deal was created, per the brief's "no seed data"; the first real new qualified caller creates the first record.
 - **Cal.com uses the "30 min meeting" event as a placeholder** (no consultation event or length in the files). Create a "Design consultation" event with the studio's hours (10am–7pm) and set `CALCOM_EVENT_TYPE_ID`.
+- **Caller's real number**: Vaani passes a placeholder (`+910000000000`) to the tool; its caller-ID variable must be mapped into `caller_number`.
 - **Vaani call timing and cost by `call_id`**: not confirmed. Until then cost per call shows "Set your inputs" and "answered within 5 minutes" uses timing only when Vaani sends it.
 - **Gemini varies on borderline decision-maker calls** (qualified ↔ flagged). Both still reach a designer; tightening the decision-maker wording in `classifier_context.md` would steady it.
 - **T16 (frustrated new lead) is escalated by Gemini**; the rubric says treat as a new P1 enquiry. Fix by tightening `classifier_context.md`.

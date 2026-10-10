@@ -1,77 +1,37 @@
-# Connecting Vaani Labs to `/api/qualify`
+# Connecting Vaani to `/api/qualify` (as configured on app.vaanivoice.ai)
 
-The voice agent calls one endpoint mid-call (build_config.md §5). Menu names below are generic; match them to the Vaani app.
+Agent: `aangan-inbound-enquiry-agent` (Design → Agents).
 
 ## 1. System prompt
-Paste the whole of `context/voice_agent_context.md` into the agent's system prompt / instructions. Do not paste `rubric_v3.md`, `build_config.md` or `pricing.md`.
+Persona → System Prompt = `vaani/system_prompt.md` (the live version). It is `context/voice_agent_context.md` plus tool mechanics, a limit of about three tool calls per call, and a hard rule that slots and bookings come only from the tool. The previous self-judging prompt is kept in `vaani/system_prompt_before_tool.md`.
 
-Add these lines at the end (tool mechanics only; no studio facts):
+Brain (LLM): primary Google `gemini-3.5-flash`, fallback Openai `gpt-4o-mini` (Azure is disabled in Vaani and blocks saving).
 
-```
-While waiting for the qualify tool, say one short line such as "One moment while I note that down."
-Send `caller_words` as the conversation so far, each turn as {"role": "caller" | "agent", "text": "..."}.
-When the caller confirms a read-back fact (for example the locality), add it to `confirmed` (for example "service_area" or "locality: Nashik").
-When you ask the follow-up question for a criterion, add that criterion to `questions_asked`.
-When the caller picks a slot from `slots`, call qualify again with `book_slot` set to that slot.
-```
-
-## 2. Custom tool (function / webhook)
+## 2. Custom tool (Persona → Actions → Custom Tools) — must be switched ON
 
 | Setting | Value |
 |---|---|
 | Name | `qualify` |
-| Description | Judge the lead and get the route to follow. Call with stage "progress" once name, locality and project are known, again as timeline and decision-maker are learned, and once with stage "final" before ending any call that got past the greeting. |
-| Method | `POST` |
-| URL | `https://aangan-call-agent-sandy.vercel.app/api/qualify` |
-| Header | `x-aangan-secret: <QUALIFY_SECRET from Vercel env>` |
-| Header | `content-type: application/json` |
-| Timeout | 15 seconds (typical reply 4 to 6 s) |
-| Run during call | yes (synchronous; the agent waits for the reply) |
+| Method / URL | `POST https://aangan-call-agent-sandy.vercel.app/api/qualify` |
+| Header | `x-aangan-secret` = `QUALIFY_SECRET` from Vercel env |
+| Timeout | 15000 ms |
+| Toggle | ON (it was saved off once; the agent then invented slots) |
 
-Parameters (JSON schema):
+Parameters: all **string** (objects with no sub-fields and arrays with no item type make the model reject the tool):
+`call_id`, `caller_number`, `language`, `stage` ("progress" or "final"), `caller` (name), `fields_so_far` (short text), `confirmed` (comma list), `questions_asked` (comma list), `caller_words` (conversation so far; Vaani sends JSON text, which the backend parses), `book_slot` (optional).
 
-```json
-{
-  "type": "object",
-  "required": ["call_id", "stage"],
-  "properties": {
-    "call_id":        {"type": "string", "description": "Vaani's call ID, same for every qualify call in this call"},
-    "caller_number":  {"type": "string", "description": "Caller ID of the incoming call"},
-    "language":       {"type": "string", "enum": ["en", "hi", "mr", "mixed"]},
-    "stage":          {"type": "string", "enum": ["progress", "final"]},
-    "caller":         {"type": "object", "properties": {"name": {"type": "string"}}},
-    "fields_so_far":  {"type": "object", "properties": {
-        "property_type":   {"type": "string", "description": "home or office"},
-        "locality":        {"type": "string"},
-        "scope":           {"type": "string"},
-        "completion_date": {"type": "string"},
-        "decision_maker":  {"type": "string"},
-        "budget":          {"type": "string", "description": "only if the caller volunteered it"}
-    }},
-    "confirmed":       {"type": "array", "items": {"type": "string"}},
-    "questions_asked": {"type": "array", "items": {"type": "string"}},
-    "caller_words":    {"type": "array", "items": {"type": "object", "properties": {"role": {"type": "string"}, "text": {"type": "string"}}}},
-    "call_started_at": {"type": "string", "description": "ISO time the call started ringing, if Vaani exposes it"},
-    "answered_at":     {"type": "string", "description": "ISO time the agent picked up, if Vaani exposes it"},
-    "duration_sec":    {"type": "number", "description": "on the final call, if available"},
-    "book_slot":       {"type": "string", "description": "ISO start of the slot the caller chose from `slots`"}
-  }
-}
-```
-
-If Vaani offers call variables, map `call_id`, `caller_number`, `call_started_at` and `answered_at` from them rather than asking the model to fill them.
-
-## 3. What the agent does with the reply
+## 3. What the backend does with each call
+- Keeps the whole call by `call_id` (appends turns, merges fields), so partial requests are fine.
+- Returns `route`, `say_line`, `next_question`, `slots`, `booking`, `pricing_lines`.
+- Books when the caller's words match exactly one offered slot (for example "10AM, please"), then sends Telegram "Slot booked" and creates the HubSpot contact + deal.
 
 | `route` | Agent does |
 |---|---|
-| `qualified` / `qualified_flagged` | Go to booking. Offer 2 or 3 of `slots`; call again with `book_slot`. `booking.confirmed: true` → read back the slot |
-| `ask_question` | Ask `next_question` in its own friendly words, then call `qualify` again |
-| `close` | Say `say_line` exactly, then end warmly |
-| `escalate_human` | Say `say_line` ("I'll note that and have someone senior call you back."), take the number, end |
+| `qualified` / `qualified_flagged` | Offer the returned `slots`; read back the slot only if `booking.confirmed` |
+| `ask_question` | Ask `next_question` |
+| `close` | Say `say_line` exactly, end warmly |
+| `escalate_human` | Say `say_line`, take the number, end |
 | `non_lead` / `dropped` | End politely |
-
-`pricing_lines.level1` / `level2` are the only words to use for a price question.
 
 ## 4. Sample request
 
@@ -82,8 +42,7 @@ curl -X POST https://aangan-call-agent-sandy.vercel.app/api/qualify \
   -d @scripts/sample-request.json
 ```
 
-`scripts/sample-request.json` is marked `is_test: true`, so it is excluded from Nikhil's numbers and sends no Telegram, Cal.com or HubSpot output. Remove `is_test` for a real end-to-end check.
-
-## 5. Still to confirm in Vaani
-- Whether call timing (ring start, pick-up) and cost per call can be read by `call_id`. Until then the dashboard's "Answered within 5 minutes" uses `call_started_at`/`answered_at` if sent, and cost shows "Set your inputs".
-- The tool timeout limit; the reply takes 4 to 6 seconds (Gemini).
+## 5. Still to set in Vaani
+- Map Vaani's caller-ID variable into `caller_number` (today it sends a placeholder).
+- For real customers, deploy the agent on an inbound number (today it is "phone-Outbound" for testing).
+- Call timing and cost per call by `call_id` are not passed, so the dashboard shows "—" for answered-within-5-minutes and "Set your inputs" for cost.

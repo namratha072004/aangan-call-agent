@@ -9,7 +9,7 @@ import { OutputResult, safely } from "@/lib/outputs/result";
 import { CallRow, sendHandoff } from "@/lib/outputs/telegram";
 import { agentDisclosedPrice, decide, Decision } from "@/lib/routing";
 import { isAfterHours } from "@/lib/time";
-import type { QualifyRequest } from "@/lib/types";
+import type { QualifyRequest, Turn } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -43,6 +43,32 @@ function normalise(raw: QualifyRequest): QualifyRequest {
   };
 }
 
+// Voice agents often send only the latest turn and partial fields on each mid-call request.
+// Keep the whole call: append new lines to the stored transcript and merge fields, confirmed facts and questions asked.
+const asText = (t: unknown): string => {
+  if (Array.isArray(t)) return t.map((x) => (typeof x === "object" && x ? `${(x as Turn).role}: ${(x as Turn).text}` : String(x))).join("\n");
+  return typeof t === "string" ? t : "";
+};
+
+function mergeWithPrevious(b: QualifyRequest, prev: Record<string, any>): QualifyRequest {
+  const before = asText(prev.transcript).trim();
+  const now = asText(b.transcript).trim();
+  const transcript = !before ? now : !now || before.includes(now) ? before : now.includes(before) ? now : `${before}\n${now}`;
+  const prevFields = (prev.fields ?? {}) as Record<string, unknown>;
+  const newFields = Object.fromEntries(Object.entries(b.fields ?? {}).filter(([, v]) => v !== "" && v !== null && v !== undefined));
+  const union = (a: unknown, c: string[] | undefined) => [...new Set([...(Array.isArray(a) ? a.map(String) : []), ...(c ?? [])])];
+  const confirmed = union(prevFields._confirmed, b.confirmed);
+  const asked = union(prevFields._asked, b.questions_asked);
+  return {
+    ...b,
+    caller: { ...b.caller, name: b.caller?.name || prev.caller_name || undefined },
+    transcript,
+    confirmed,
+    questions_asked: asked,
+    fields: { ...prevFields, ...newFields, _confirmed: confirmed, _asked: asked },
+  };
+}
+
 function costInr(r: QualifyRequest, durationSec: number | null, tokensIn: number, tokensOut: number): number | null {
   const voice = typeof r.vaani_cost_inr === "number" ? r.vaani_cost_inr
     : config.vaaniInrPerMin !== null && durationSec !== null ? (durationSec / 60) * config.vaaniInrPerMin : null;
@@ -66,13 +92,15 @@ export async function POST(req: NextRequest) {
 
   // Previous state of this call, and whether the same number has an open lead in the last REPEAT_CALLER_DAYS.
   const [[prev], [repeat]] = await Promise.all([
-    db`SELECT id, call_started_at, booking, outputs, gemini_tokens_in, gemini_tokens_out FROM calls WHERE call_id = ${body.call_id}`.catch(logFail("read")),
+    db`SELECT id, call_started_at, booking, outputs, gemini_tokens_in, gemini_tokens_out, transcript, fields, caller_name
+         FROM calls WHERE call_id = ${body.call_id}`.catch(logFail("read")),
     body.caller?.phone
       ? db`SELECT id FROM calls WHERE caller_phone = ${body.caller.phone} AND call_id <> ${body.call_id} AND NOT is_test
              AND call_started_at >= now() - make_interval(days => ${config.repeatCallerDays}) LIMIT 1`.catch(logFail("repeat check"))
       : Promise.resolve([]),
   ]);
   const prevOutputs: Record<string, OutputResult> = prev?.outputs ?? {};
+  if (prev) body = mergeWithPrevious(body, prev);
 
   // 1. AI judgement: Gemini checks the five criteria.
   let cls: ClassifyResult | null = null;

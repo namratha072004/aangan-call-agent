@@ -36,7 +36,7 @@ export default async function CallPage({ params }: { params: Promise<{ id: strin
           <h2 style={{ fontSize: 20, marginBottom: 10 }}>Answers</h2>
           <dl className="kv">
             <dt>Phone</dt><dd>{c.caller_phone || "—"}</dd>
-            {Object.entries(fields).map(([k, v]) => <Fragment key={k}><dt>{k.replace(/_/g, " ")}</dt><dd>{String(v ?? "—")}</dd></Fragment>)}
+            {Object.entries(fields).filter(([k]) => !k.startsWith("_")).map(([k, v]) => <Fragment key={k}><dt>{k.replace(/_/g, " ")}</dt><dd>{String(v ?? "—")}</dd></Fragment>)}
             <dt>Slot</dt><dd>{c.slot_start ? fmtIst(c.slot_start, { weekday: "long" }) : "Not booked"}</dd>
             <dt>Priority</dt><dd>{c.priority || "—"}</dd>
             <dt>Flags</dt><dd>{(c.flags as string[]).join(", ") || "—"}</dd>

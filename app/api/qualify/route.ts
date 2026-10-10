@@ -22,12 +22,23 @@ function authorised(req: NextRequest): boolean {
   return req.headers.get("x-aangan-secret") === secret;
 }
 
-// Accept both this build's field names and build_config.md §5 names.
-function normalise(b: QualifyRequest): QualifyRequest {
+// Accept this build's field names, build_config.md §5 names, and the flat all-string form voice tools send
+// (caller as a name, fields_so_far as text, confirmed / questions_asked as comma lists, caller_words as text).
+const list = (v: unknown): string[] =>
+  Array.isArray(v) ? v.map(String) : typeof v === "string" ? v.split(/[,;\n]/).map((x) => x.trim()).filter(Boolean) : [];
+
+function normalise(raw: QualifyRequest): QualifyRequest {
+  const b = raw as QualifyRequest & { caller?: unknown; fields_so_far?: unknown; caller_name?: string };
+  const caller = typeof b.caller === "string" ? { name: b.caller } : (b.caller as QualifyRequest["caller"]) ?? {};
+  const fieldsRaw: unknown = b.fields ?? b.fields_so_far;
+  const fields = typeof fieldsRaw === "string" ? (fieldsRaw.trim() ? { summary: fieldsRaw } : {}) : (fieldsRaw as QualifyRequest["fields"]) ?? {};
   return {
     ...b,
-    caller: { ...(b.caller ?? {}), phone: b.caller?.phone ?? b.caller_number },
-    fields: b.fields ?? b.fields_so_far ?? {},
+    caller: { ...caller, name: caller.name || b.caller_name || undefined, phone: caller.phone ?? b.caller_number },
+    fields,
+    confirmed: list(b.confirmed),
+    questions_asked: list(b.questions_asked),
+    book_slot: b.book_slot?.trim() || undefined,
     transcript: b.transcript ?? b.caller_words ?? "",
   };
 }

@@ -28,6 +28,13 @@ function authorised(req: NextRequest): boolean {
 const list = (v: unknown): string[] =>
   Array.isArray(v) ? v.map(String) : typeof v === "string" ? v.split(/[,;\n]/).map((x) => x.trim()).filter(Boolean) : [];
 
+// Placeholder numbers (all zeros, too short) are treated as "no number".
+function realPhone(p: string | undefined): string | undefined {
+  const digits = (p ?? "").replace(/\D/g, "");
+  if (digits.length < 10 || /^(91)?0+$/.test(digits) || /^0+$/.test(digits.slice(-10))) return undefined;
+  return p!.trim();
+}
+
 function normalise(raw: QualifyRequest): QualifyRequest {
   const b = raw as QualifyRequest & { caller?: unknown; fields_so_far?: unknown; caller_name?: string };
   const caller = typeof b.caller === "string" ? { name: b.caller } : (b.caller as QualifyRequest["caller"]) ?? {};
@@ -35,7 +42,7 @@ function normalise(raw: QualifyRequest): QualifyRequest {
   const fields = typeof fieldsRaw === "string" ? (fieldsRaw.trim() ? { summary: fieldsRaw } : {}) : (fieldsRaw as QualifyRequest["fields"]) ?? {};
   return {
     ...b,
-    caller: { ...caller, name: caller.name || b.caller_name || undefined, phone: caller.phone ?? b.caller_number },
+    caller: { ...caller, name: caller.name || b.caller_name || undefined, phone: realPhone(caller.phone ?? b.caller_number) },
     fields,
     confirmed: list(b.confirmed),
     questions_asked: list(b.questions_asked),
